@@ -92,8 +92,7 @@
                       <router-link :to="{ name: 'user-edit', params: { id: item.id } }">
                         <v-btn v-on="on" x-small text icon>
                           <v-icon small>edit</v-icon>
-                        </v-btn>
-                        {{item}}
+                        </v-btn>                     
                       </router-link>
                     </template>
                     <span>Editar</span>

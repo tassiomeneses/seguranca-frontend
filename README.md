@@ -32,3 +32,9 @@ yarn run test:unit
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+Users
+
+user  - root@root.com.br
+senha - 123456

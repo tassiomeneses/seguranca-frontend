@@ -1,0 +1,49 @@
+cache:
+  paths:
+    - node_modules/
+
+image: docker:dind
+
+services:
+  - name: docker:dind
+
+stages:
+  - version
+  - build
+  - test
+  - package
+
+project-version:
+  stage: version
+  script:
+    - export PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
+    - echo "$PACKAGE_VERSION" > package_version.txt
+  artifacts:
+    paths:
+      - package_version.txt
+  only:
+    - release
+
+node-build:
+  image: node:lts
+  stage: build
+  script:
+    - npm install
+    - npm run build
+
+unit-test:
+  image: node:lts
+  stage: test
+  script:
+    - npm run test:unit
+
+docker-publish:
+  stage: package
+  script:
+    - export PACKAGE_VERSION="$(cat package_version.txt)"
+    - echo "$NEXUS_PASSWORD" | docker login -u $NEXUS_USER http://$NEXUS_URL --password-stdin
+    - docker build . -t $CI_PROJECT_NAME:$PACKAGE_VERSION
+    - docker tag $CI_PROJECT_NAME:$PACKAGE_VERSION $NEXUS_URL/$CI_PROJECT_NAME:$PACKAGE_VERSION
+    - docker push $NEXUS_URL/$CI_PROJECT_NAME:$PACKAGE_VERSION
+  only:
+    - release
